@@ -1,0 +1,30 @@
+@API_HostAddress = http://localhost:5077
+
+###
+# @name=/api/movies - Get all Movies
+GET {{API_HostAddress}}/api/movies/
+Accept: application/json
+
+###
+# @name=/api/movies/1 - Get a specific Movie
+GET {{API_HostAddress}}/api/movies/1
+Accept: application/json
+
+###
+# @name=/api/movies - Add a new Movie
+POST {{API_HostAddress}}/api/movies
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "Topgun",
+  "yearofrelease": 1986
+}
+
+###
+# @name=/api/movies - Delete a Movie
+DELETE {{API_HostAddress}}/api/movies/3
+Accept: application/json
+
+
+
