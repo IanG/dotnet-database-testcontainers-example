@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using TestingContainersExample.Common.Data.Entities;
 
 namespace TestingContainersExample.Common.Data;
 
+[ExcludeFromCodeCoverage]
 public partial class MoviesDbContext : DbContext
 {
     public MoviesDbContext() { }
