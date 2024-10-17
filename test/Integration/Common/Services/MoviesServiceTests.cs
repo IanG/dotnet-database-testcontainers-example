@@ -1,6 +1,8 @@
 using FluentAssertions;
 using FluentAssertions.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
+using TestingContainersExample.Common.Data;
 using TestingContainersExample.Common.Data.Entities;
 using TestingContainersExample.Common.Services;
 using TestingContainersExample.Tests.Integration.Fixtures;
@@ -13,11 +15,15 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
 {
     private readonly MoviesDbContextFixture _fixture;
     private readonly IMoviesService _sut;
+    private readonly MoviesDbContext _moviesDbContext;
+    private readonly FakeLogger<MoviesService> _logger;
     
     public MoviesServiceTests(MoviesDbContextFixture fixture)
     {
         _fixture = fixture;
-        _sut = new MoviesService(new FakeLogger<MoviesService>(), _fixture.CreateMoviesDbContext());
+        _logger = new FakeLogger<MoviesService>();
+        _moviesDbContext = _fixture.CreateMoviesDbContext();
+        _sut = new MoviesService(_logger, _moviesDbContext);
     }
     
     [Fact(DisplayName = "GetMovies - Should return Movies"), Priority(1)]
@@ -89,5 +95,62 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
         
         deleted.Should().BeTrue();
         curentMovieCount.Should().Be(expectedMovieCountPostDelete);
+    }
+    
+    [Fact(DisplayName = "DeleteMovie - Deleting a movie that doesn't exist should not change the DB"), Priority(4)]
+    public async void DeleteMovieThatDoesNotExistShouldReturnFalse()
+    {
+        int expectedMovieCountPostDelete = _fixture.CreateMoviesDbContext().Movies.Count();
+
+        bool deleted = await _sut.DeleteMovie(10);
+        
+        int curentMovieCount = _fixture.CreateMoviesDbContext().Movies.Count();
+
+        deleted.Should().BeFalse();
+        curentMovieCount.Should().Be(expectedMovieCountPostDelete);
+    }
+    
+    [Fact (DisplayName = "DeleteMovie - When an exception is thrown it should log the error and return false"), Priority(5)]
+    public async Task DeleteMovieWhenExceptionThrownShouldLogErrorAndReturnFalse()
+    {
+        int movieId = 666;
+        
+        // Intentionally kill the db context to trigger an exception
+        await _moviesDbContext.DisposeAsync();
+        
+        bool result = await _sut.DeleteMovie(movieId);
+    
+        
+        result.Should().BeFalse();
+        
+        IReadOnlyList<FakeLogRecord> logEntries = _logger.Collector.GetSnapshot();
+        
+        logEntries.Should().NotBeEmpty();
+        logEntries.Should().HaveCount(2);
+
+        logEntries.First().Level.Should().Be(LogLevel.Debug);
+        logEntries.First().Message.Should().Be($"Deleting Movie {movieId}");
+        logEntries.Last().Level.Should().Be(LogLevel.Error);
+        logEntries.Last().Message.Should().StartWith($"Error deleting movie {movieId}");
+    }
+
+    [Fact(DisplayName = "AddMovie - When an exception is thrown it should log the error and return default"), Priority(6)]
+    public async Task AddMovieWhenExceptionThrownShouldLogErrorAndReturnTrue()
+    {
+        string newMovieName = "A New Movie";
+        int newMovieYearOfRelease = 2024;
+        
+        await _moviesDbContext.DisposeAsync();
+        Movie? addedMovie = await _sut.AddMovie(newMovieName, newMovieYearOfRelease);
+
+        addedMovie.Should().BeNull();
+        
+        IReadOnlyList<FakeLogRecord> logEntries = _logger.Collector.GetSnapshot();
+        
+        logEntries.Should().NotBeEmpty();
+        logEntries.Should().HaveCount(2);
+        logEntries.First().Level.Should().Be(LogLevel.Debug);
+        logEntries.First().Message.Should().Be($"Adding Movie {newMovieName} {newMovieYearOfRelease}");
+        logEntries.Last().Level.Should().Be(LogLevel.Error);
     }
 }
