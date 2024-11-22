@@ -25,6 +25,7 @@ public class MoviesControllerTests : IClassFixture<IntegrationTestWebApplication
     }
 
     [Fact(DisplayName = "Get All Movies at /api/movies"), Priority(1)]
+    [Trait("Category", "API")]
     public async Task GetAllMovies()
     {
         HttpClient client = _factory.CreateClient();
@@ -36,6 +37,7 @@ public class MoviesControllerTests : IClassFixture<IntegrationTestWebApplication
     }
 
     [Fact(DisplayName = "Get Movie By Id at /api/movies/1"), Priority(2)]
+    [Trait("Category", "API")]
     public async Task GetMovieById()
     {
         Movie expectedMovie = new Movie
@@ -59,6 +61,7 @@ public class MoviesControllerTests : IClassFixture<IntegrationTestWebApplication
     }
 
     [Fact(DisplayName = "Remove Movie by id at /api/movies/1"), Priority(3)]
+    [Trait("Category", "API")]
     public async Task RemoveMovieById()
     {
         HttpClient client = _factory.CreateClient();
@@ -70,6 +73,7 @@ public class MoviesControllerTests : IClassFixture<IntegrationTestWebApplication
     }
 
     [Fact(DisplayName = "Add a new movie at /api/movies")]
+    [Trait("Category", "API")]
     public async Task AddMovie()
     {
         HttpClient client = _factory.CreateClient();

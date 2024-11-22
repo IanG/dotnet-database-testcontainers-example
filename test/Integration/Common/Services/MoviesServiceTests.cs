@@ -27,7 +27,8 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
     }
     
     [Fact(DisplayName = "GetMovies - Should return Movies"), Priority(1)]
-    public async void GetMoviesShouldReturnAllMovies()
+    [Trait("Category", "Service")]
+    public async Task GetMoviesShouldReturnAllMovies()
     {
         IList<Movie> expectedMovies = new List<Movie>
         {
@@ -43,7 +44,8 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
     }
 
     [Fact(DisplayName = "GetMovie - Getting movie with Id 1 Should return Movie with Id"), Priority(2)]
-    public async void GetMovieForExistingMovieShouldReturnMovie()
+    [Trait("Category", "Service")]
+    public async Task GetMovieForExistingMovieShouldReturnMovie()
     {
         Movie expectedMovie = new Movie()
         {
@@ -60,7 +62,8 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
     }
 
     [Fact(DisplayName = "AddMovie - Adding a new movie should add the movie"), Priority(3)]
-    public async void AddMovieShouldAddMovie()
+    [Trait("Category", "Service")]
+    public async Task AddMovieShouldAddMovie()
     {
         int expectedMovieCount = 3;
         
@@ -85,7 +88,8 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
     }
 
     [Fact(DisplayName = "DeleteMovie - When Deleting a movie it should be removed from the DB"), Priority(4)]
-    public async void DeleteMovieShouldDeleteMovie()
+    [Trait("Category", "Service")]
+    public async Task DeleteMovieShouldDeleteMovie()
     {
         int expectedMovieCountPostDelete = _fixture.CreateMoviesDbContext().Movies.Count() - 1;
 
@@ -98,7 +102,8 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
     }
     
     [Fact(DisplayName = "DeleteMovie - Deleting a movie that doesn't exist should not change the DB"), Priority(4)]
-    public async void DeleteMovieThatDoesNotExistShouldReturnFalse()
+    [Trait("Category", "Service")]
+    public async Task DeleteMovieThatDoesNotExistShouldReturnFalse()
     {
         int expectedMovieCountPostDelete = _fixture.CreateMoviesDbContext().Movies.Count();
 
@@ -111,6 +116,7 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
     }
     
     [Fact (DisplayName = "DeleteMovie - When an exception is thrown it should log the error and return false"), Priority(5)]
+    [Trait("Category", "Service")]
     public async Task DeleteMovieWhenExceptionThrownShouldLogErrorAndReturnFalse()
     {
         int movieId = 666;
@@ -135,6 +141,7 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
     }
 
     [Fact(DisplayName = "AddMovie - When an exception is thrown it should log the error and return default"), Priority(6)]
+    [Trait("Category", "Service")]
     public async Task AddMovieWhenExceptionThrownShouldLogErrorAndReturnTrue()
     {
         string newMovieName = "A New Movie";

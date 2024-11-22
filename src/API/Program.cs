@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpLogging;
 using Serilog;
 using Serilog.Core;
 using TestingContainersExample.Common.Data;
@@ -25,7 +26,24 @@ builder.Services.AddRouting(options =>
     options.LowercaseQueryStrings = true;
 });
 
-builder.Services.AddHttpLogging(o => { });
+builder.Services.AddHttpLogging(o =>
+{
+    o.LoggingFields = HttpLoggingFields.RequestPath
+                      | HttpLoggingFields.RequestHeaders
+                      | HttpLoggingFields.ResponseHeaders
+                      | HttpLoggingFields.RequestBody
+                      | HttpLoggingFields.ResponseBody
+                      | HttpLoggingFields.ResponseStatusCode;
+    
+    // Limit the size of the logged request body to 4 KB
+    o.RequestBodyLogLimit = 4096; // 4KB
+    
+    // Limit the size of the logged response body to 4 KB
+    o.ResponseBodyLogLimit = 4096; // 4KB
+
+    // Filter by media types (log JSON but exclude plain text)
+    o.MediaTypeOptions.AddText("application/json");
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -41,7 +59,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapHealthChecks("/health");
+
 app.UseHttpsRedirection();
+
+app.UseHttpLogging();
 
 app.UseAuthorization();
 
