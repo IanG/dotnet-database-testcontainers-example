@@ -77,7 +77,7 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
         
         Movie? movie = await _sut.AddMovie(expectedMovie.Name, expectedMovie.YearOfRelease);
         
-        int movieCount = _fixture.CreateMoviesDbContext().Movies.Count();
+        int movieCount = _moviesDbContext.Movies.Count();
         
         movie.Should().NotBeNull();
         movie.Should().BeEquivalentTo(expectedMovie, options => options
@@ -95,24 +95,24 @@ public class MoviesServiceTests : IClassFixture<MoviesDbContextFixture>
 
         bool deleted = await _sut.DeleteMovie(3);
         
-        int curentMovieCount = _fixture.CreateMoviesDbContext().Movies.Count();
+        int currentMovieCount = _moviesDbContext.Movies.Count();
         
         deleted.Should().BeTrue();
-        curentMovieCount.Should().Be(expectedMovieCountPostDelete);
+        currentMovieCount.Should().Be(expectedMovieCountPostDelete);
     }
     
     [Fact(DisplayName = "DeleteMovie - Deleting a movie that doesn't exist should not change the DB"), Priority(4)]
     [Trait("Category", "Service")]
     public async Task DeleteMovieThatDoesNotExistShouldReturnFalse()
     {
-        int expectedMovieCountPostDelete = _fixture.CreateMoviesDbContext().Movies.Count();
+        int expectedMovieCountPostDelete = _moviesDbContext.Movies.Count();
 
         bool deleted = await _sut.DeleteMovie(10);
         
-        int curentMovieCount = _fixture.CreateMoviesDbContext().Movies.Count();
+        int currentMovieCount = _moviesDbContext.Movies.Count();
 
         deleted.Should().BeFalse();
-        curentMovieCount.Should().Be(expectedMovieCountPostDelete);
+        currentMovieCount.Should().Be(expectedMovieCountPostDelete);
     }
     
     [Fact (DisplayName = "DeleteMovie - When an exception is thrown it should log the error and return false"), Priority(5)]
